@@ -6,11 +6,11 @@ import com.github.asalimonov.hay.core.endpoints.http.routes.ContentProvider
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
 
-class About extends ContentProvider {
+class Page500 extends ContentProvider {
   override def getContent(request: HttpRequest, message: HttpMessage): FullHttpResponse = {
 
-    val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-      Unpooled.wrappedBuffer(slurp("/pages/v1/about.html")))
+    val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+      Unpooled.wrappedBuffer(slurp("/pages/v1/500.html")))
     response.headers.set(HttpHeaderNames.CONTENT_TYPE, "text/html")
     response.headers.set(HttpHeaderNames.CONTENT_LENGTH, response.content.readableBytes)
     response

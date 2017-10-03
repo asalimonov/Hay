@@ -2,7 +2,7 @@ package com.github.asalimonov.hay.core.endpoints.http
 
 import com.github.asalimonov.hay.core.Configuration
 import com.github.asalimonov.hay.core.endpoints.Endpoint
-import com.github.asalimonov.hay.core.endpoints.http.routes.{DefaultRoutes, RouteRegistry}
+import com.github.asalimonov.hay.core.endpoints.http.routes.RouteRegistry
 import com.github.asalimonov.hay.core.logging.LoggerBase
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
@@ -27,13 +27,12 @@ class HttpEndpoint(val httpConfig: HttpEndpointConfig, val configuration: Config
     // Configure the server.
     val bossGroup = new NioEventLoopGroup(1)
     val workerGroup = new NioEventLoopGroup()
-    val defaultRoutes = new DefaultRoutes(configuration)
 
     try{
 
       import java.net.InetSocketAddress
       val inet = new InetSocketAddress(httpConfig.port)
-      val routeRegistry = new RouteRegistry(defaultRoutes.routes, null, null, null)
+      val routeRegistry = new RouteRegistry(configuration)
 
       val b = new ServerBootstrap()
       b.group(bossGroup, workerGroup)

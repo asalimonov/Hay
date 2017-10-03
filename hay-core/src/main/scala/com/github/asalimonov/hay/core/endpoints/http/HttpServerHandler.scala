@@ -1,12 +1,14 @@
 package com.github.asalimonov.hay.core.endpoints.http
 
-import com.github.asalimonov.hay.core.Configuration
+import com.github.asalimonov.hay.core.{Configuration, Hay}
 import com.github.asalimonov.hay.core.endpoints.http.routes.RouteRegistry
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
+import io.netty.channel.ChannelFutureListener
 import io.netty.handler.codec.http._
 
 class HttpServerHandler (val routeRegistry: RouteRegistry, val configuration: Configuration) extends SimpleChannelInboundHandler[Object]{
 
+  private val logger = configuration.logger
   private var request: HttpRequest = _
   private val buf = new StringBuilder
 
@@ -22,10 +24,17 @@ class HttpServerHandler (val routeRegistry: RouteRegistry, val configuration: Co
         ctx.write(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE))
       }
       val keepAlive = HttpUtil.isKeepAlive(httpMsg)
-      val contentProvider = routeRegistry.getContentProvider(request, configuration)
-      val response = contentProvider.getContent(request, httpMsg)
+      val response: FullHttpResponse =
+      try {
+        val contentProvider = routeRegistry.getContentProvider(request, configuration)
+        contentProvider.getContent(request, httpMsg)
+      } catch{
+        case e: Exception => {
+          logger.error("Could handle request", e)
+          routeRegistry.contentProvider500.apply(configuration).getContent(request, httpMsg)
+        }
+      }
 
-      import io.netty.channel.ChannelFutureListener
       if (!keepAlive) ctx.write(response).addListener(ChannelFutureListener.CLOSE)
       else {
         response.headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE)
@@ -36,6 +45,6 @@ class HttpServerHandler (val routeRegistry: RouteRegistry, val configuration: Co
 
   override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable): Unit = {
     ctx.close()
-    //TODO: add logging of exceptions
+    logger.error("Exception caught", cause)
   }
 }
