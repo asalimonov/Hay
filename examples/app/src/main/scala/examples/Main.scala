@@ -11,9 +11,9 @@ object Main extends App {
 
   def main(): Unit = {
     println("Hello, it is Hay test application!")
-    Hay.addConfiguration("test")
-      .setHealthCheckEndpoint("localhost", 9876, false)
 
+    Hay.addConfiguration("test")
+        .setHealthCheckEndpoint("localhost", 9876, false)
     Hay.setLogger(new LoggerWrapper(logger))
     Hay.start()
 

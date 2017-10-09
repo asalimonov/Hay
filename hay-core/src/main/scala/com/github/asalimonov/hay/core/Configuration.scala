@@ -3,13 +3,13 @@ package com.github.asalimonov.hay.core
 import com.github.asalimonov.hay.core.endpoints.http.{HttpEndpoint, HttpEndpointConfig}
 import com.github.asalimonov.hay.core.logging._
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.HashMap
 
 sealed class Configuration private[core] (val name: String, val logger: LoggerBase) {
   private var httpEndpointConfig: HttpEndpointConfig = _
   private var httpEndpoint: HttpEndpoint = _
 
-  private var metricsContexts = ListBuffer[MetricsContext]()
+  private val metricsContexts = HashMap[String, MetricsContext]()
 
   // Setup
 
@@ -21,11 +21,15 @@ sealed class Configuration private[core] (val name: String, val logger: LoggerBa
     this
   }
 
+  def getMetricsContexts(): scala.collection.Map[String, MetricsContext]  = metricsContexts
+
   def addMetricsContext(name: String) : MetricsContext  = {
-    require(mc != null, "MetricsContext should not be null")
-    metricsContexts += mc
-    this
+    require(name != null, "Name of metricsContext should not be null")
+    val mc = new MetricsContext(name)
+    metricsContexts.put(name, mc)
+    mc
   }
+
 
   // Management
 
