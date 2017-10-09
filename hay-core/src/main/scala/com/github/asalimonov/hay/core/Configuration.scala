@@ -14,11 +14,15 @@ sealed class Configuration private[core] (val name: String, val logger: LoggerBa
   // Setup
 
   def setHealthCheckEndpoint(hostname: String, port: Int, ssl: Boolean) : Configuration ={
+    require(hostname != null && !hostname.isEmpty, "hostname cannot be null or empty")
+    require(port >=1 && port <=65534, "port should >= 1 and <=65534")
+
     httpEndpointConfig = new HttpEndpointConfig(hostname, port, ssl)
     this
   }
 
-  def addMetricsContext(mc: MetricsContext) : Configuration = {
+  def addMetricsContext(name: String) : MetricsContext  = {
+    require(mc != null, "MetricsContext should not be null")
     metricsContexts += mc
     this
   }
@@ -27,7 +31,7 @@ sealed class Configuration private[core] (val name: String, val logger: LoggerBa
 
   def start(): Unit ={
     if(httpEndpointConfig != null){
-      httpEndpoint = new HttpEndpoint(httpEndpointConfig, this, logger)
+      httpEndpoint = new HttpEndpoint(httpEndpointConfig, this)
       httpEndpoint.start()
     }
   }
@@ -36,6 +40,13 @@ sealed class Configuration private[core] (val name: String, val logger: LoggerBa
     if(httpEndpoint != null) {
       httpEndpoint.stop()
       httpEndpoint = null
+    }
+  }
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match {
+      case c: Configuration => name.equals(c.name)
+      case _ => false
     }
   }
 }

@@ -3,7 +3,6 @@ package com.github.asalimonov.hay.core.endpoints.http
 import com.github.asalimonov.hay.core.Configuration
 import com.github.asalimonov.hay.core.endpoints.Endpoint
 import com.github.asalimonov.hay.core.endpoints.http.routes.RouteRegistry
-import com.github.asalimonov.hay.core.logging.LoggerBase
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
@@ -13,9 +12,10 @@ import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.SelfSignedCertificate
 
-class HttpEndpoint(val httpConfig: HttpEndpointConfig, val configuration: Configuration,  val logger: LoggerBase) extends Endpoint {
+class HttpEndpoint(httpConfig: HttpEndpointConfig, configuration: Configuration) extends Endpoint {
 
   var sslCtx: SslContext = _
+  private val logger = configuration.logger
 
   def start(): Unit = {
 
@@ -45,7 +45,7 @@ class HttpEndpoint(val httpConfig: HttpEndpointConfig, val configuration: Config
       ch.closeFuture().sync()
 
     }catch  {
-      case e: Exception => {}
+      case e: Exception => logger.error(s"Couldn't create HTTP Endpoint: ${e.getMessage}", e)
     }
     finally {
       bossGroup.shutdownGracefully()
