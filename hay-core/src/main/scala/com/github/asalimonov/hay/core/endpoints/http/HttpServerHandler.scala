@@ -1,16 +1,15 @@
 package com.github.asalimonov.hay.core.endpoints.http
 
-import com.github.asalimonov.hay.core.{Configuration, Hay}
+import com.github.asalimonov.hay.core.{Configuration}
 import com.github.asalimonov.hay.core.endpoints.http.routes.RouteRegistry
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import io.netty.channel.ChannelFutureListener
 import io.netty.handler.codec.http._
 
-class HttpServerHandler (val routeRegistry: RouteRegistry, val configuration: Configuration) extends SimpleChannelInboundHandler[Object]{
+class HttpServerHandler (routeRegistry: RouteRegistry, configuration: Configuration) extends SimpleChannelInboundHandler[Object]{
 
   private val logger = configuration.logger
   private var request: HttpRequest = _
-  private val buf = new StringBuilder
 
   override def channelReadComplete(ctx: ChannelHandlerContext): Unit = {
     ctx.flush()
@@ -30,7 +29,7 @@ class HttpServerHandler (val routeRegistry: RouteRegistry, val configuration: Co
         contentProvider.getContent(request, httpMsg)
       } catch{
         case e: Exception => {
-          logger.error("Could handle request", e)
+          logger.error(s"Could not handle request: ${e.getMessage}", e)
           routeRegistry.contentProvider500.apply(configuration).getContent(request, httpMsg)
         }
       }

@@ -22,5 +22,4 @@ class RouteRegistry (configuration: Configuration){
     contentProvider.apply(configuration)
   }
 
-
 }

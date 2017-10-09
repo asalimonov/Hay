@@ -8,7 +8,7 @@ import io.netty.handler.ssl.SslContext
 import io.netty.handler.codec.http.HttpRequestDecoder
 import io.netty.handler.codec.http.HttpResponseEncoder
 
-class HttpServerInitializer(val sslCtx: SslContext, val routeRegistry: RouteRegistry, val configuration: Configuration)  extends ChannelInitializer[SocketChannel] {
+class HttpServerInitializer(sslCtx: SslContext, routeRegistry: RouteRegistry, configuration: Configuration)  extends ChannelInitializer[SocketChannel] {
 
   def initChannel(ch: SocketChannel): Unit = {
     val p = ch.pipeline
